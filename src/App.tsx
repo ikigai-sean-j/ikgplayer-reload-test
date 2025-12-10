@@ -3,13 +3,16 @@ import type { IKGPlayer } from "@ikigaians/ikgplayer";
 import { initPlayerInstance, PlayerEventType } from "./stream/stream";
 import "./App.css";
 
-const STREAM_URL =
-  "https://pull-bpgi-test.stream.iki-utl.cc/live/aro0011hd.flv?abr_pts=-1000";
+const STREAM_URLS = [
+  "https://pull-bpgi-test.stream.iki-utl.cc/live/aro0021hd.flv?abr_pts=-1000",
+  "https://pull-bpgi-test.stream.iki-utl.cc/live/aro0021hi.flv?abr_pts=-1000",
+];
 
 function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<IKGPlayer | null>(null);
   const [snapshot, setSnapshot] = useState<string>("");
+  const urlIndexRef = useRef<number>(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -50,9 +53,14 @@ function App() {
 
       // Load and play
       try {
-        await player.load(STREAM_URL);
+        const currentUrl = STREAM_URLS[urlIndexRef.current];
+        console.log(`Playing stream ${urlIndexRef.current + 1}: ${currentUrl}`);
+
+        await player.load(currentUrl);
         await player.play();
-        console.log("Playing stream...");
+
+        // Switch to next URL for next iteration
+        urlIndexRef.current = (urlIndexRef.current + 1) % STREAM_URLS.length;
       } catch (error) {
         console.error("Error playing stream:", error);
         // Retry after a short delay if there's an error
@@ -80,9 +88,10 @@ function App() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        backgroundColor: "#000",
       }}
     >
-      <div style={{ position: "relative", width: "800px", height: "450px" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
         <div
           ref={containerRef}
           style={{ width: "100%", height: "100%", backgroundColor: "#000" }}
